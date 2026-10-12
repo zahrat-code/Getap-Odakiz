@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GETAP ODAKİZ - Karar Destek Modülü</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- MediaPipe FaceMesh & Camera Utils CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- html2pdf.js CDN (PDF Rapor Çıktısı için) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>GETAP ODAKİZ</h1>
+            <span>PROTOTİP</span>
+        </div>
+        <nav>
+            <button id="nav-test-btn" class="nav-btn active" onclick="switchView('view-setup')">Yeni Test Uygula</button>
+            <button id="nav-reports-btn" class="nav-btn" onclick="switchView('view-dashboard')">Uzman Rapor Paneli</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <!-- VIEW 1: SETUP/LOGIN -->
+        <section id="view-setup" class="view-panel active">
+            <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+                <h2 class="glass-card-title">Bilişsel Test Oturumu Başlat</h2>
+                
+                <div class="form-group">
+                    <label for="participant-name">Katılımcı Adı Soyadı</label>
+                    <input type="text" id="participant-name" class="form-control" placeholder="Örn: Ahmet Yılmaz" value="Ahmet Yılmaz">
+                </div>
+                
+                <div class="form-group">
+                    <label for="participant-age">Katılımcı Yaşı</label>
+                    <input type="number" id="participant-age" class="form-control" placeholder="Örn: 9" value="9">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="adhd-diagnosis">
+                    <label for="adhd-diagnosis" style="cursor: pointer;">
+                        <strong>Önceden Bildirilen DEHAB Tanısı Var mı?</strong><br>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">
+                            (Bu bilgi yalnızca grafiklerde ayırt ediciliği ve norm karşılaştırmalarını doğrulamak için kullanılır)
+                        </span>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="startCalibrationSetup()">
+                        Kamerayı Başlat ve Kalibrasyona Geç
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: CALIBRATION & ENVIRONMENT CHECK -->
+        <section id="view-calibration" class="view-panel">
+            <div class="grid-2">
+                
+                <!-- Left: Webcam Preview with Overlays -->
+                <div class="glass-card">
+                    <h2 class="glass-card-title">Kamera Açısı ve Ortam Testi</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        Lütfen yüzünüzün tam ortalandığından, iyi aydınlatılmış olduğunuzdan ve kameraya dik baktığınızdan emin olun.
+                    </p>
+                    
+                    <div class="camera-box" id="camera-container">
+                        <video id="webcam-video" autoplay playsinline></video>
+                        <canvas id="overlay-canvas"></canvas>
+                        
+                        <div class="camera-status">
+                            <div>
+                                <span id="status-detect-light" class="status-indicator yellow"></span>
+                                Yüz Tespiti: <span id="status-detect-text">Aranıyor...</span>
+                            </div>
+                            <div>
+                                <span id="status-fps-light" class="status-indicator yellow"></span>
+                                Kamera Hızı: <span id="status-fps-text">0 FPS</span>
+                            </div>
+                            <div>
+                                <span id="status-motion-light" class="status-indicator green"></span>
+                                Hareket Seviyesi: <span id="status-motion-text">Sakin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Interactive Calibration Dot area -->
+                <div class="glass-card">
+                    <h2 class="glass-card-title">Göz Kalibrasyonu</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        Başınızı oynatmadan, ekranda belirecek renkli noktaya gözlerinizle odaklanın ve nokta hareket edene kadar bakmaya devam edin.
+                    </p>
+                    
+                    <div class="calibration-container" id="calibration-area">
+                        <div class="calibration-dot" id="cal-dot"></div>
+                        <div class="calibration-instruction" id="cal-instruction">
+                            <h3>Kalibrasyona Hazır</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                                Başlatmak için aşağıdaki butona basın. Kalibrasyon yaklaşık 10 saniye sürecektir.
+                            </p>
+                            <button class="btn btn-accent" id="start-cal-btn" onclick="runCalibrationCycle()">
+                                Kalibrasyonu Başlat
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button class="btn btn-secondary" onclick="switchView('view-setup')">İptal</button>
+                        <button class="btn btn-primary" id="start-test-btn" disabled onclick="startCognitiveTest()">
+                            Bilişsel Testi Başlat
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- VIEW 3: CPT TEST PANEL -->
+        <section id="view-test" class="view-panel">
+            <div class="glass-card" style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <h2 class="glass-card-title" style="text-align: left;">Sürekli Dikkat Testi (CPT-X)</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; text-align: left;">
+                    <strong>Yönerge:</strong> Ekranda sırasıyla harfler belirecektir. <strong>"X"</strong> harfi haricinde ekrana gelen **her harf için SPACE (Boşluk) tuşuna** olabildiğince hızlı basın. "X" harfi geldiğinde ise **tuşa basmayın**.
+                </p>
+                
+                <div class="cpt-container" id="cpt-panel">
+                    <div id="cpt-focus-warning" style="display: none; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.95); color: white; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5); z-index: 5;">⚠️ LÜTFEN EKRANA ODAKLANIN!</div>
+                    <div class="cpt-focus-dot" id="cpt-focus-dot"></div>
+                    <div class="cpt-letter" id="cpt-display-letter"></div>
+                    <div class="cpt-progress" id="cpt-progress-bar"></div>
+                    <div class="cpt-tip" id="cpt-keyboard-hint">Testin başlaması bekleniyor...</div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: left; font-size: 0.85rem; color: var(--text-muted);">
+                        Oturum ID: <span id="test-session-id" style="color: var(--accent-cyan);">N/A</span><br>
+                        Kamera Modu: <span style="color: var(--success);">Aktif (Video Kaydedilmiyor)</span>
+                    </div>
+                    <button class="btn btn-error" onclick="abortTest()">Testi Yarıda Kes</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: EXPERT DASHBOARD (SESSION LIST) -->
+        <section id="view-dashboard" class="view-panel">
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 class="glass-card-title" style="margin-bottom: 0;">Uzman Raporlama Paneli</h2>
+                    <button class="btn btn-primary" onclick="loadSessionsList()">Yenile</button>
+                </div>
+                
+                <!-- Gelişmiş Arama ve Filtreleme Bölümü -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <input type="text" id="search-participant" class="form-control" placeholder="Katılımcı adı ile ara..." oninput="filterSessionsList()" style="max-width: 300px;">
+                    <select id="filter-diagnosis" class="form-control" onchange="filterSessionsList()" style="max-width: 200px;">
+                        <option value="ALL">Tüm Tanı Durumları</option>
+                        <option value="CONTROL">Sadece Kontrol Grubu</option>
+                        <option value="ADHD">Sadece DEHAB Tanılılar</option>
+                    </select>
+                    <select id="filter-age" class="form-control" onchange="filterSessionsList()" style="max-width: 200px;">
+                        <option value="ALL">Tüm Yaş Grupları</option>
+                        <option value="KIDS">Çocuk (6-12 Yaş)</option>
+                        <option value="TEENS">Ergen (13-18 Yaş)</option>
+                        <option value="ADULTS">Yetişkin (19+ Yaş)</option>
+                    </select>
+                </div>
+                
+                <div class="session-table-wrapper">
+                    <table class="session-table">
+                        <thead>
+                            <tr>
+                                <th>Katılımcı Adı</th>
+                                <th>Yaş</th>
+                                <th>Tanı Durumu</th>
+                                <th>Dikkat (DKİ)</th>
+                                <th>Dürtüsellik (DÜİ)</th>
+                                <th>Hiperaktivite (PAG)</th>
+                                <th>Güvenilirlik</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessions-table-body">
+                            <!-- JS ile doldurulacak -->
+                            <tr>
+                                <td colspan="8" style="text-align: center; color: var(--text-muted);">
+                                    Kayıtlı oturum aranıyor veya sunucu kapalı...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: DETAILED REPORT VIEW -->
+        <section id="view-report" class="view-panel">
+            <!-- Geri Dön ve PDF İndirme Buton Grubu -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <button class="btn btn-secondary" onclick="switchView('view-dashboard')">
+                    &larr; Uzman Paneline Dön
+                </button>
+                <button class="btn btn-accent" id="download-pdf-btn" onclick="downloadPDFReport()">
+                    📥 PDF Raporu İndir
+                </button>
+            </div>
+            
+            <!-- Yazdırılabilir Rapor Alanı Başlangıcı -->
+            <div id="printable-report-area" style="padding: 5px;">
+                <!-- Report Title Header -->
+                <div class="glass-card" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.75rem; font-weight: 800;" id="report-participant-name">Ahmet Yılmaz</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                            Yaş: <span id="report-participant-age">9</span> | 
+                            Tanı Beyanı: <span id="report-participant-diagnosis">-</span>
+                        </p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Oturum Protokol ID</p>
+                        <strong id="report-session-id" style="color: var(--accent-cyan); font-family: monospace;">UUID-12345</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Index Cards Row -->
+            <div class="score-grid">
+                <div class="score-card dki">
+                    <h4>Dikkat Kopuş İndeksi (DKİ)</h4>
+                    <div class="score-value" id="val-dki">0</div>
+                    <p id="label-dki">Hesaplanıyor...</p>
+                </div>
+                <div class="score-card dui">
+                    <h4>Dürtüsellik İndeksi (DÜİ)</h4>
+                    <div class="score-value" id="val-dui">0</div>
+                    <p id="label-dui">Hesaplanıyor...</p>
+                </div>
+                <div class="score-card pag">
+                    <h4>Psikomotor Aktivite (PAG)</h4>
+                    <div class="score-value" id="val-pag">0</div>
+                    <p id="label-pag">Hesaplanıyor...</p>
+                </div>
+                <div class="score-card quality">
+                    <h4>Veri Kalite Skoru</h4>
+                    <div class="score-value" id="val-quality">0%</div>
+                    <p id="label-quality">Hesaplanıyor...</p>
+                </div>
+            </div>
+            
+            <!-- Multimodal Detailed Graphics -->
+            <div class="report-row-grid">
+                <!-- Heatmap Canvas Card -->
+                <div class="glass-card">
+                    <h3 class="glass-card-title">Göz Odak Yoğunluğu (Heatmap)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Katılımcının test ekranında yoğunlaştığı bölgelerin ısı haritası dağılımı.
+                    </p>
+                    <div class="visual-canvas-container">
+                        <canvas id="heatmap-canvas"></canvas>
+                        <div class="canvas-legend">Bakış Dağılımı</div>
+                    </div>
+                </div>
+                
+                <!-- Gaze Scanpath Canvas Card -->
+                <div class="glass-card">
+                    <h3 class="glass-card-title">Bakış Rotaları (Scanpath / Gaze Plot)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Bakışların ekrandaki sırasını (çember numarası) ve kalış süresini (çember büyüklüğü) gösterir.
+                    </p>
+                    <div class="visual-canvas-container">
+                        <canvas id="scanpath-canvas"></canvas>
+                        <div class="canvas-legend">Bakış Geçişleri</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page break before the Timeline/Stats section -->
+            <div class="html2pdf__page-break"></div>
+            
+            <!-- Timeline Chart & Norm comparison grid -->
+            <div class="metrics-detail-grid">
+                <!-- Timeline Chart -->
+                <div class="glass-card">
+                    <h3 class="glass-card-title">Zaman Hizalı Multimodal Akış Çizelgesi</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Bilişsel olaylar (tepkiler, hatalar) ile göz sapması ve üst gövde hareketliliğinin eş zamanlı akışı.
+                    </p>
+                    <div class="timeline-chart-wrapper" style="width: 100%; height: 320px;">
+                        <canvas id="timeline-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Telemetry Stats Summary -->
+                <div class="glass-card">
+                    <h3 class="glass-card-title">Test Sonuç Özeti</h3>
+                    <div class="telemetry-summary-card">
+                        <div class="tel-stat-item">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Toplam Uyaran</span>
+                            <span class="tel-stat-val" id="stat-total-stimuli">0</span>
+                        </div>
+                        <div class="tel-stat-item">
+                            <span style="font-size: 0.8rem; color: var(--success);">Doğru Tepki</span>
+                            <span class="tel-stat-val" style="color: var(--success);" id="stat-correct-hits">0</span>
+                        </div>
+                        <div class="tel-stat-item">
+                            <span style="font-size: 0.8rem; color: var(--warning);">Kaçırma (Omission)</span>
+                            <span class="tel-stat-val" style="color: var(--warning);" id="stat-omissions">0</span>
+                        </div>
+                        <div class="tel-stat-item">
+                            <span style="font-size: 0.8rem; color: var(--error);">Hatalı Basış (Commission)</span>
+                            <span class="tel-stat-val" style="color: var(--error);" id="stat-commissions">0</span>
+                        </div>
+                        <div class="tel-stat-item" style="grid-column: span 2;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Ortalama Tepki Süresi</span>
+                            <span class="tel-stat-val" style="color: var(--accent-cyan);" id="stat-avg-rt">0 ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="report-row-grid">
+                <!-- Group Distribution KDE Chart -->
+                <div class="glass-card">
+                    <h3 class="glass-card-title">Grup Karşılaştırma Grafikleri (Bilinen Gruplar Norm Dağılımı)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Katılımcının skorlarının DEHAB ve sağlıklı kontrol gruplarının yoğunluk eğrileriyle karşılaştırılması.
+                    </p>
+                    <div class="norm-chart-wrapper" style="width: 100%; height: 300px;">
+                        <canvas id="norm-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Decision Support Expert Feedback -->
+                <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h3 class="glass-card-title">Uzman Karar Destek Bildirimi</h3>
+                        
+                        <div class="feedback-alert">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <div class="feedback-text">
+                                <h5>Klinik Karar Destek Özeti</h5>
+                                <p id="report-expert-verdict">
+                                    Oturum verileri analiz edilmektedir...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+                        <strong>Yasal Uyarı:</strong> Bu modül bir tanı veya teşhis otomasyonu değildir. Çıktılar yalnızca test esnasındaki göz, baş ve gövde hareket verilerini telemetriyle bütünleştiren **karar destek** göstergeleridir. Değerlendirme yetkisi tamamen ilgili uzman hekim veya klinik psikoloğa aittir.
+                    </div>
+                </div>
+            </div>
+            </div> <!-- printable-report-area Bitişi -->
+            
+        </section>
+
+    </main>
+
+    <!-- Detailed Logic Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>

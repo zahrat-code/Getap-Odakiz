@@ -1,0 +1,964 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --bg-color: #0b0f19;
+    --card-bg: rgba(20, 30, 55, 0.65);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --primary: #4f46e5;
+    --primary-glow: rgba(79, 70, 229, 0.4);
+    --accent-blue: #00d2ff;
+    --accent-cyan: #0df;
+    --accent-purple: #9d4edd;
+    --text-color: #f3f4f6;
+    --text-muted: #9ca3af;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.1) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-color);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(11, 15, 25, 0.5);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(79, 70, 229, 0.3);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 70, 229, 0.5);
+}
+
+/* App Header */
+header {
+    background: rgba(11, 15, 25, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo-area h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo-area span {
+    font-size: 0.75rem;
+    background: var(--primary);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn.active {
+    color: var(--accent-cyan);
+    background: rgba(0, 210, 255, 0.1);
+    border-color: rgba(0, 210, 255, 0.2);
+}
+
+/* App Container */
+main.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 4rem 1.5rem;
+}
+
+/* Views Section */
+.view-panel {
+    display: none;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.view-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards & Glassmorphism */
+.glass-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    margin-bottom: 2rem;
+    page-break-inside: avoid; /* PDF sayfa bölünmesini önler */
+    break-inside: avoid;       /* PDF sayfa bölünmesini önler (modern) */
+}
+
+.glass-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--accent-cyan);
+    padding-left: 0.75rem;
+}
+
+/* Forms & Inputs */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    width: 100%;
+    background: rgba(11, 15, 25, 0.6);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.checkbox-group input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+    color: white;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent-blue), var(--primary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+}
+
+.btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+}
+
+.btn:disabled {
+    background: #2e354f;
+    color: #6b7280;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Grid Layouts */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Camera & Calibration Section */
+.camera-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.camera-box.active {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+#webcam-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror view */
+}
+
+#overlay-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(-1); /* Mirror canvas overlays as well */
+    pointer-events: none;
+}
+
+.camera-status {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    background: rgba(11, 15, 25, 0.85);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.4rem;
+}
+
+.status-indicator.green { background-color: var(--success); }
+.status-indicator.red { background-color: var(--error); }
+.status-indicator.yellow { background-color: var(--warning); }
+
+/* Calibration Point Canvas */
+.calibration-container {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    background: #060913;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    cursor: crosshair;
+}
+
+.calibration-dot {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: var(--accent-cyan);
+    border: 4px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px var(--accent-cyan);
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    display: none;
+}
+
+.calibration-dot::after {
+    content: '';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--accent-cyan);
+    border-radius: 50%;
+    top: -16px;
+    left: -16px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+.calibration-instruction {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 80%;
+}
+
+.calibration-instruction h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent-blue);
+}
+
+/* CPT Cognitive Test UI */
+.cpt-container {
+    width: 100%;
+    height: 450px;
+    background: #02040a;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--border-color);
+    position: relative;
+    user-select: none;
+}
+
+.cpt-letter {
+    font-size: 7.5rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -2px;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
+    height: 12rem;
+    display: flex;
+    align-items: center;
+}
+
+.cpt-letter.flash {
+    animation: letterPop 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes letterPop {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1.0); opacity: 1; }
+}
+
+.cpt-focus-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--accent-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.cpt-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+    width: 0%;
+    transition: width 0.3s linear;
+}
+
+.cpt-tip {
+    position: absolute;
+    bottom: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Score Panel / Metrics Dashboard */
+.score-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+    .score-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .score-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.score-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.score-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.score-card.dki::before { background: var(--accent-blue); }
+.score-card.dui::before { background: var(--accent-purple); }
+.score-card.pag::before { background: var(--warning); }
+.score-card.quality::before { background: var(--success); }
+
+.score-card h4 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.score-value {
+    font-size: 2.75rem;
+    font-weight: 800;
+}
+
+.score-card.dki .score-value { color: var(--accent-cyan); }
+.score-card.dui .score-value { color: var(--accent-purple); }
+.score-card.pag .score-value { color: var(--warning); }
+.score-card.quality .score-value { color: var(--success); }
+
+.score-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* Visualization Canvas Cards */
+.report-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .report-row-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.visual-canvas-container {
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: #03060f;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.visual-canvas-container canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.canvas-legend {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(11, 15, 25, 0.85);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+/* Sessions Table */
+.session-table-wrapper {
+    overflow-x: auto;
+}
+
+.session-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.session-table th {
+    padding: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.session-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+.session-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-adhd {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--error);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-control {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.table-action-btn {
+    background: rgba(79, 70, 229, 0.15);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.table-action-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.report-back-btn {
+    margin-bottom: 1.5rem;
+}
+
+/* Detail Box Cards */
+.metrics-detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .metrics-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.telemetry-summary-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.tel-stat-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.tel-stat-val {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.feedback-alert {
+    background: rgba(79, 70, 229, 0.1);
+    border: 1px solid rgba(79, 70, 229, 0.25);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.feedback-alert svg {
+    flex-shrink: 0;
+    color: var(--accent-cyan);
+}
+
+.feedback-text h5 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.feedback-text p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* ===================================================
+   PDF BASKI VE YAZDIRMA OPTİMİZASYON STİLLERİ (CTRL+P)
+   =================================================== */
+@media print {
+    /* Yazdırırken rapor dışındaki tüm arayüz bileşenlerini gizle */
+    header, nav, .btn, button, footer, 
+    #view-setup, #view-calibration, #view-test, #view-dashboard,
+    .view-panel:not(#view-report) {
+        display: none !important;
+    }
+
+    main.container {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    body {
+        background-color: #0b0f19 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    #printable-report-area {
+        width: 100% !important; /* Baskı sayfa genişliğine tam sığması için %100 yapıldı */
+        max-width: 100% !important;
+        margin: 0 !important; /* Kenar boşluklarının sıfırlanması için sıfırlandı */
+        padding: 15px !important;
+        box-sizing: border-box !important;
+    }
+
+    .report-row-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .report-row-grid > div:first-child {
+        width: 46% !important;
+        box-sizing: border-box !important;
+    }
+
+    .report-row-grid > div:last-child {
+        width: 50% !important;
+        box-sizing: border-box !important;
+    }
+
+    .metrics-detail-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .metrics-detail-grid > div:first-child {
+        width: 64% !important;
+        box-sizing: border-box !important;
+    }
+
+    .metrics-detail-grid > div:last-child {
+        width: 33% !important;
+        box-sizing: border-box !important;
+    }
+
+    .glass-card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 1.25rem !important; /* Baskı sayfasında dikey alan kazanmak için dolgu azaltıldı */
+        margin-bottom: 1rem !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        background: rgba(20, 30, 55, 0.95) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: none !important;
+    }
+
+    .score-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 1rem !important;
+        width: 100% !important;
+    }
+
+    .score-grid > .score-card {
+        width: 23% !important;
+        box-sizing: border-box !important;
+        padding: 1rem !important;
+    }
+
+    .score-value {
+        font-size: 2.75rem !important;
+    }
+
+    canvas {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .visual-canvas-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        aspect-ratio: 16/8 !important; /* Göz odak ve geçiş haritaları dikeyde kısaltıldı */
+    }
+
+    .timeline-chart-wrapper {
+        height: 220px !important; /* Akış çizelgesi baskı boyutu optimize edildi */
+    }
+
+    .norm-chart-wrapper {
+        height: 200px !important; /* Norm eğrisi baskı boyutu optimize edildi */
+    }
+
+    h2, h3, .glass-card-title {
+        font-size: 1.25rem !important;
+    }
+
+    p, span, td, th {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* ===================================================
+   HTML2PDF.JS (HTML2CANVAS) İÇİN ÖZEL PDF ÜRETİM STİLLERİ
+   =================================================== */
+.html2pdf__container #printable-report-area {
+    width: 1080px !important;
+    max-width: 1080px !important;
+    margin: 0 !important; /* Sol taraftaki boşluğu önlemek için ortalamayı iptal edip sıfırladık */
+    padding: 15px !important;
+    box-sizing: border-box !important;
+}
+
+.html2pdf__container .report-row-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    gap: 1.5rem !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.html2pdf__container .report-row-grid > div:first-child {
+    width: 46% !important;
+    box-sizing: border-box !important;
+}
+
+.html2pdf__container .report-row-grid > div:last-child {
+    width: 50% !important;
+    box-sizing: border-box !important;
+}
+
+.html2pdf__container .metrics-detail-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    gap: 1.5rem !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.html2pdf__container .metrics-detail-grid > div:first-child {
+    width: 64% !important;
+    box-sizing: border-box !important;
+}
+
+.html2pdf__container .metrics-detail-grid > div:last-child {
+    width: 33% !important;
+    box-sizing: border-box !important;
+}
+
+.html2pdf__container .glass-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 1.25rem !important; /* Dikey alan dolgusu azaltıldı */
+    margin-bottom: 1rem !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    background: rgba(20, 30, 55, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: none !important;
+}
+
+.html2pdf__container .score-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    width: 100% !important;
+}
+
+.html2pdf__container .score-grid > .score-card {
+    width: 23% !important;
+    box-sizing: border-box !important;
+    padding: 1rem !important;
+}
+
+.html2pdf__container .score-value {
+    font-size: 2.75rem !important;
+}
+
+.html2pdf__container canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.html2pdf__container .visual-canvas-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 16/8 !important; /* Göz odak ve geçiş grafik yüksekliği kısaltıldı */
+}
+
+.html2pdf__container .timeline-chart-wrapper {
+    height: 220px !important; /* Çizelge dikey yüksekliği optimize edildi */
+}
+
+.html2pdf__container .norm-chart-wrapper {
+    height: 200px !important; /* Norm eğrisi dikey yüksekliği optimize edildi */
+}
+
+.html2pdf__container h2, 
+.html2pdf__container h3, 
+.html2pdf__container .glass-card-title {
+    font-size: 1.25rem !important;
+}
+
+.html2pdf__container p, 
+.html2pdf__container span, 
+.html2pdf__container td, 
+.html2pdf__container th {
+    font-size: 0.9rem !important;
+}
+
+/* html2pdf.js ana taşıyıcı gövde genişlik ve boşluk sıfırlaması */
+.html2pdf__container {
+    width: 1080px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Zorunlu sayfa kesmesi (page-break) tanımları */
+.html2pdf__page-break {
+    display: block !important;
+    clear: both !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    height: 1px !important;
+    margin-top: -1px !important;
+    overflow: hidden !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+@media print {
+    .html2pdf__page-break {
+        display: block !important;
+        clear: both !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        height: 1px !important;
+        margin-top: -1px !important;
+        overflow: hidden !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+}
